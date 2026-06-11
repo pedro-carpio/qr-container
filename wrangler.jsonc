@@ -1,0 +1,16 @@
+{
+	"compatibility_date": "2025-10-08",
+	"main": "src/index.ts",
+	"name": "qr-container",
+	"upload_source_maps": true,
+	"observability": {
+		"enabled": true
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "d1-qr-container",
+			"database_id": "2a2dcd5e-1e18-45d5-b87e-c97a98c1e4b2"
+		}
+	]
+}
