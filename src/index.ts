@@ -10,6 +10,7 @@ import { QrsFallbackCreate } from "./endpoints/api/qrsFallback";
 import { ApproveUser } from "./endpoints/api/approve";
 import { QrsCreate } from "./endpoints/api/qrs";
 import { RouterGet } from "./endpoints/router/routerGet";
+import { cleanup } from "./cron/cleanup";
 
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -48,4 +49,9 @@ openapi.post("/api/qrs", QrsCreate);
 // Public router
 openapi.get("/router/:slug/:amount", RouterGet);
 
-export default app;
+export default {
+	fetch: app.fetch.bind(app),
+	async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+		ctx.waitUntil(cleanup(env));
+	},
+};
