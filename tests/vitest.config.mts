@@ -23,6 +23,7 @@ export default defineWorkersConfig({
 					compatibilityFlags: ["experimental", "nodejs_compat"],
 					bindings: {
 						MIGRATIONS: migrations,
+						WORKER_SECRET: "test-secret",
 					},
 				},
 			},
