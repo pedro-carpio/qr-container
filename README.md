@@ -11,7 +11,7 @@ pnpm install
 wrangler d1 create d1-qr-container
 
 # 2. Crear KV (copiar id → wrangler.jsonc > kv_namespaces[0].id)
-wrangler kv namespace create RATE_LIMIT_KV
+wrangler kv namespace create KV
 
 # 3. Secret JWT
 wrangler secret put WORKER_SECRET

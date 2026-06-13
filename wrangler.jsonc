@@ -12,5 +12,11 @@
 			"database_name": "d1-qr-container",
 			"database_id": "2a2dcd5e-1e18-45d5-b87e-c97a98c1e4b2"
 		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "KV",
+			"id": "f4f3cad3d9564da59629cbb1a8617363"
+		}
 	]
 }

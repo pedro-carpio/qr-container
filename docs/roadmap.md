@@ -42,7 +42,7 @@ Crear `migrations/0001_init.sql`:
 
 - `src/endpoints/router/route.ts` — `GET /router/:slug/:amount`
 - Lógica: exacto vivo → fallback → `waitUntil(alerta)` → 404
-- Rate limit: leer/escribir `RATE_LIMIT_KV` por IP
+- Rate limit: leer/escribir `KV` por IP
 
 ## Paso 9 — Cron Trigger
 
@@ -53,8 +53,8 @@ Crear `migrations/0001_init.sql`:
 ## Paso 10 — Wiring final
 
 - `src/index.ts` — montar todos los routers, exportar `scheduled`
-- `wrangler.jsonc` — agregar binding `RATE_LIMIT_KV` y cron schedule
-- `src/types.ts` — extender `Env` con `RATE_LIMIT_KV: KVNamespace` y `WORKER_SECRET: string`
+- `wrangler.jsonc` — agregar binding `KV` y cron schedule
+- `src/types.ts` — extender `Env` con `KV: KVNamespace` y `WORKER_SECRET: string`
 - `worker-configuration.d.ts` — `wrangler types` para regenerar
 
 ## Paso 11 — Tests mínimos
@@ -66,14 +66,14 @@ Crear `migrations/0001_init.sql`:
 
 | Paso | Estado |
 |------|--------|
-| 1. Limpiar plantilla | pendiente |
-| 2. Migrations | pendiente |
-| 3. Helpers base | pendiente |
-| 4. Auth endpoints | pendiente |
-| 5. Onboarding | pendiente |
-| 6. Admin | pendiente |
-| 7. QR upsert | pendiente |
-| 8. Router público | pendiente |
+| 1. Limpiar plantilla | hecho |
+| 2. Migrations | hecho |
+| 3. Helpers base | hecho |
+| 4. Auth endpoints | hecho |
+| 5. Onboarding | hecho |
+| 6. Admin | hecho |
+| 7. QR upsert | hecho |
+| 8. Router público | hecho |
 | 9. Cron | pendiente |
 | 10. Wiring | pendiente |
 | 11. Tests | pendiente |

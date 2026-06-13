@@ -132,6 +132,6 @@ Si contador > 30 → 429.
 | Binding | Tipo | Para qué |
 |---------|------|----------|
 | `DB` | D1 | todos los datos |
-| `RATE_LIMIT_KV` | KV | rate limit router |
+| `KV` | KV | rate limit router |
 
 Secret: `WORKER_SECRET` → `wrangler secret put WORKER_SECRET`.
