@@ -9,6 +9,11 @@ import { CompanySetup } from "./endpoints/api/company";
 import { QrsFallbackCreate } from "./endpoints/api/qrsFallback";
 import { ApproveUser } from "./endpoints/api/approve";
 import { QrsCreate } from "./endpoints/api/qrs";
+import { QrsExpiring } from "./endpoints/api/qrsExpiring";
+import { AdminListUsers } from "./endpoints/api/admin/users";
+import { AdminListPending } from "./endpoints/api/admin/pending";
+import { AdminUserQrs } from "./endpoints/api/admin/userQrs";
+import { AdminStats } from "./endpoints/api/admin/stats";
 import { RouterGet } from "./endpoints/router/routerGet";
 import { cleanup } from "./cron/cleanup";
 
@@ -45,6 +50,13 @@ openapi.post("/api/company", CompanySetup);
 openapi.post("/api/qrs/fallback", QrsFallbackCreate);
 openapi.post("/api/approve", ApproveUser);
 openapi.post("/api/qrs", QrsCreate);
+openapi.get("/api/qrs/expiring", QrsExpiring);
+
+// Admin audit (hidden from OpenAPI docs)
+openapi.get("/api/admin/stats", AdminStats);
+openapi.get("/api/admin/pending", AdminListPending);
+openapi.get("/api/admin/users", AdminListUsers);
+openapi.get("/api/admin/users/:user_id/qrs", AdminUserQrs);
 
 // Public router
 openapi.get("/router/:slug/:amount", RouterGet);
