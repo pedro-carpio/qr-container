@@ -42,7 +42,7 @@ export class RouterGet extends OpenAPIRoute {
 
 		// Resolve user by slug
 		const user = await c.env.DB.prepare(
-			"SELECT id, email FROM users WHERE slug = ? AND is_fully_registered = 1",
+			"SELECT id, email FROM users WHERE slug = ?",
 		)
 			.bind(slug)
 			.first<{ id: string; email: string }>();

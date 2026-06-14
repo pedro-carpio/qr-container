@@ -13,16 +13,18 @@ export class QrsExpiring extends OpenAPIRoute {
 
 	async handle(c: AppContext) {
 		const user_id = c.get("user_id");
+		const now = new Date().toISOString();
+		const in30Days = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
 		const rows = await c.env.DB.prepare(
 			`SELECT id, amount, qr_string, expiration_date, bank, is_fallback
 			 FROM qrs
 			 WHERE user_id = ?
-			   AND expiration_date > datetime('now')
-			   AND expiration_date < datetime('now', '+30 days')
+			   AND expiration_date > ?
+			   AND expiration_date < ?
 			 ORDER BY expiration_date ASC`,
 		)
-			.bind(user_id)
+			.bind(user_id, now, in30Days)
 			.all();
 
 		return c.json({

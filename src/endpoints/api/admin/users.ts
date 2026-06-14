@@ -30,19 +30,24 @@ export class AdminListUsers extends OpenAPIRoute {
 		const { page, limit, status } = data.query;
 		const offset = (page - 1) * limit;
 
-		const whereClause =
-			status === "pending"
-				? "WHERE is_fully_registered = 0"
-				: status === "active"
-					? "WHERE is_fully_registered = 1"
-					: "";
+		const SELECT_ROWS = "SELECT id, email, company_name, slug, is_fully_registered, created_at FROM users";
 
-		const [countResult, rowsResult] = await c.env.DB.batch([
-			c.env.DB.prepare(`SELECT COUNT(*) as total FROM users ${whereClause}`),
-			c.env.DB.prepare(
-				`SELECT id, email, company_name, slug, is_fully_registered, created_at FROM users ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-			).bind(limit, offset),
-		]);
+		const [countResult, rowsResult] = await c.env.DB.batch(
+			status === "pending"
+				? [
+						c.env.DB.prepare("SELECT COUNT(*) as total FROM users WHERE is_fully_registered = ?").bind(0),
+						c.env.DB.prepare(`${SELECT_ROWS} WHERE is_fully_registered = ? ORDER BY created_at DESC LIMIT ? OFFSET ?`).bind(0, limit, offset),
+					]
+				: status === "active"
+					? [
+							c.env.DB.prepare("SELECT COUNT(*) as total FROM users WHERE is_fully_registered = ?").bind(1),
+							c.env.DB.prepare(`${SELECT_ROWS} WHERE is_fully_registered = ? ORDER BY created_at DESC LIMIT ? OFFSET ?`).bind(1, limit, offset),
+						]
+					: [
+							c.env.DB.prepare("SELECT COUNT(*) as total FROM users"),
+							c.env.DB.prepare(`${SELECT_ROWS} ORDER BY created_at DESC LIMIT ? OFFSET ?`).bind(limit, offset),
+						],
+		);
 
 		const total = (countResult.results[0] as { total: number }).total;
 
