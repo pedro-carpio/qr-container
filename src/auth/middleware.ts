@@ -9,6 +9,7 @@ export const requireAuth = createMiddleware<{ Bindings: Env; Variables: Variable
 	}
 	try {
 		const payload = await verifyJWT(auth.slice(7), c.env.WORKER_SECRET);
+		if (payload.type === "refresh") throw new Error("Refresh token cannot be used for API access");
 		const user = await c.env.DB.prepare("SELECT company_name, is_fully_registered FROM users WHERE id = ?")
 			.bind(payload.user_id)
 			.first<{ company_name: string | null; is_fully_registered: number }>();

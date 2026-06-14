@@ -19,7 +19,7 @@ export class Login extends OpenAPIRoute {
 		responses: {
 			"200": {
 				description: "JWT token",
-				...contentJson(z.object({ token: z.string() })),
+				...contentJson(z.object({ access_token: z.string(), refresh_token: z.string() })),
 			},
 			"401": { description: "Invalid credentials" },
 		},
@@ -37,7 +37,8 @@ export class Login extends OpenAPIRoute {
 			return c.json({ success: false, errors: [{ code: 401, message: "Invalid credentials" }] }, 401);
 		}
 
-		const token = await signJWT({ user_id: user.id }, c.env.WORKER_SECRET);
-		return c.json({ token });
+		const access_token = await signJWT({ user_id: user.id, type: "access" }, c.env.WORKER_SECRET, 15 * 60);
+		const refresh_token = await signJWT({ user_id: user.id, type: "refresh" }, c.env.WORKER_SECRET, 7 * 24 * 60 * 60);
+		return c.json({ access_token, refresh_token });
 	}
 }

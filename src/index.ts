@@ -5,11 +5,13 @@ import type { Variables } from "./types";
 import { requireAuth } from "./auth/middleware";
 import { Signup } from "./endpoints/auth/signup";
 import { Login } from "./endpoints/auth/login";
+import { RefreshToken } from "./endpoints/auth/refresh";
 import { CompanySetup } from "./endpoints/api/company";
 import { QrsFallbackCreate } from "./endpoints/api/qrsFallback";
 import { ApproveUser } from "./endpoints/api/approve";
 import { QrsCreate } from "./endpoints/api/qrs";
 import { QrsExpiring } from "./endpoints/api/qrsExpiring";
+import { QrsList } from "./endpoints/api/qrsList";
 import { AdminListUsers } from "./endpoints/api/admin/users";
 import { AdminListPending } from "./endpoints/api/admin/pending";
 import { AdminUserQrs } from "./endpoints/api/admin/userQrs";
@@ -44,12 +46,14 @@ const openapi = fromHono(app, {
 // Auth
 openapi.post("/auth/signup", Signup);
 openapi.post("/auth/login", Login);
+openapi.post("/auth/refresh", RefreshToken);
 
 // Onboarding + protected API
 openapi.post("/api/company", CompanySetup);
 openapi.post("/api/qrs/fallback", QrsFallbackCreate);
 openapi.post("/api/approve", ApproveUser);
 openapi.post("/api/qrs", QrsCreate);
+openapi.get("/api/qrs", QrsList);
 openapi.get("/api/qrs/expiring", QrsExpiring);
 
 // Admin audit (hidden from OpenAPI docs)
