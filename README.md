@@ -5,7 +5,7 @@ API de enrutamiento QR. Cloudflare Workers + D1. Docs en `/` (Swagger).
 ## Deploy
 
 ```bash
-pnpm install
+npm run install
 
 # 1. Crear D1 (copiar id → wrangler.jsonc > d1_databases[0].database_id)
 wrangler d1 create d1-qr-container
@@ -17,17 +17,17 @@ wrangler kv namespace create KV
 wrangler secret put WORKER_SECRET
 
 # 4. Deploy (aplica migraciones automáticamente vía predeploy)
-pnpm deploy
+npm deploy
 ```
 
 ## Dev local
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
 ## Tests
 
 ```bash
-pnpm test
+npm run test
 ```
