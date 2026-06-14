@@ -31,7 +31,7 @@ const openapi = fromHono(app, {
 		info: {
 			title: "QR Router API",
 			version: "1.0.0",
-			description: "QR routing backend — Cloudflare Workers + D1 + KV",
+			description: "QR routing backend - Cloudflare Workers + D1 + KV",
 		},
 	},
 });

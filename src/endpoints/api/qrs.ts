@@ -19,18 +19,10 @@ export class QrsCreate extends OpenAPIRoute {
 		},
 		responses: {
 			"200": { description: "QR saved" },
-			"403": { description: "Account not fully registered" },
 		},
 	};
 
 	async handle(c: AppContext) {
-		if (c.get("is_fully_registered") !== 1) {
-			return c.json(
-				{ success: false, errors: [{ code: 403, message: "Account not fully registered" }] },
-				403,
-			);
-		}
-
 		const data = await this.getValidatedData<typeof this.schema>();
 		const { amount, qr_string, expiration_date, bank } = data.body;
 		const user_id = c.get("user_id");

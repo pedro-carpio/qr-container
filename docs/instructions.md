@@ -30,7 +30,7 @@ JWT firmado con `WORKER_SECRET` (env var). Web Crypto nativo Workers. Sin Supaba
 
 ---
 
-## 3. Tablas (D1 = SQLite — tipos SQLite, no Postgres)
+## 3. Tablas (D1 = SQLite - tipos SQLite, no Postgres)
 
 ### `users`
 
@@ -72,25 +72,25 @@ IDs: `crypto.randomUUID()` en código (Workers nativo).
 
 ### Auth (público)
 
-- `POST /auth/signup` — `{email, password}` → crear usuario → `{token}`
-- `POST /auth/login` — `{email, password}` → `{token}`
+- `POST /auth/signup` - `{email, password}` → crear usuario → `{token}`
+- `POST /auth/login` - `{email, password}` → `{token}`
 
 ### Onboarding (JWT requerido)
 
-- `POST /api/company` — `{company_name, slug}` → actualizar usuario. Slug ya tomado → 409.
-- `POST /api/qrs/fallback` — `{qr_string, expiration_date, bank}` — `expiration_date` debe ser > 11 meses desde hoy.
+- `POST /api/company` - `{company_name, slug}` → actualizar usuario. Slug ya tomado → 409.
+- `POST /api/qrs/fallback` - `{qr_string, expiration_date, bank}` - `expiration_date` debe ser > 11 meses desde hoy.
 
 ### Admin (JWT + `company_name == 'admin'`)
 
-- `POST /api/approve` — `{user_id}` → `is_fully_registered = 1`
+- `POST /api/approve` - `{user_id}` → `is_fully_registered = 1`
 
 ### QRs (JWT + `is_fully_registered == 1`)
 
-- `POST /api/qrs` — `{amount, qr_string, expiration_date, bank}` — si existe QR con mismo monto → reemplazar (UPDATE). Si no → INSERT.
+- `POST /api/qrs` - `{amount, qr_string, expiration_date, bank}` - si existe QR con mismo monto → reemplazar (UPDATE). Si no → INSERT.
 
 ### Público
 
-- `GET /router/{slug}/{amount}` — sin auth. Rate limit por IP via KV.
+- `GET /router/{slug}/{amount}` - sin auth. Rate limit por IP via KV.
 
 ---
 

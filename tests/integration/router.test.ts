@@ -54,7 +54,7 @@ describe("GET /router/:slug/:amount", () => {
 		const past = new Date(Date.now() - 1000).toISOString();
 
 		await post("/api/qrs/fallback", { qr_string: "fallback-data", expiration_date: future, bank: "Bank" }, userToken);
-		// Insert expired QR directly via API using a past date — API accepts any datetime so we can use past dates
+		// Insert expired QR directly via API using a past date - API accepts any datetime so we can use past dates
 		await post("/api/qrs", { amount: 50, qr_string: "expired-data", expiration_date: past, bank: "Bank" }, userToken);
 
 		const res = await SELF.fetch("http://local.test/router/acme-fallback/50");
