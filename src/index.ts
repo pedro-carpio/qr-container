@@ -21,8 +21,8 @@ import { RouterGet } from "./endpoints/router/routerGet";
 import { cleanup } from "./cron/cleanup";
 
 const ALLOWED_ORIGINS = [
-	"http://localhost:5173",
-	"https://misitio.google.com",
+	"https://qr-container-frontend.vercel.app/",
+	"https://misqrs.porkusillo.site"
 ];
 
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
