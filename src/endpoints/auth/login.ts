@@ -18,8 +18,20 @@ export class Login extends OpenAPIRoute {
 		},
 		responses: {
 			"200": {
-				description: "JWT token",
-				...contentJson(z.object({ access_token: z.string(), refresh_token: z.string() })),
+				description: "JWT token and user info",
+				...contentJson(
+					z.object({
+						access_token: z.string(),
+						refresh_token: z.string(),
+						user: z.object({
+							id: z.string(),
+							email: z.string(),
+							company_name: z.string().nullable(),
+							slug: z.string().nullable(),
+							is_fully_registered: z.boolean(),
+						}),
+					}),
+				),
 			},
 			"401": { description: "Invalid credentials" },
 		},
@@ -29,9 +41,18 @@ export class Login extends OpenAPIRoute {
 		const data = await this.getValidatedData<typeof this.schema>();
 		const { email, password } = data.body;
 
-		const user = await c.env.DB.prepare("SELECT id, password_hash FROM users WHERE email = ?")
+		const user = await c.env.DB.prepare(
+			"SELECT id, email, password_hash, company_name, slug, is_fully_registered FROM users WHERE email = ?",
+		)
 			.bind(email)
-			.first<{ id: string; password_hash: string }>();
+			.first<{
+				id: string;
+				email: string;
+				password_hash: string;
+				company_name: string | null;
+				slug: string | null;
+				is_fully_registered: number;
+			}>();
 
 		if (!user || !(await verifyPassword(password, user.password_hash))) {
 			return c.json({ success: false, errors: [{ code: 401, message: "Invalid credentials" }] }, 401);
@@ -39,6 +60,17 @@ export class Login extends OpenAPIRoute {
 
 		const access_token = await signJWT({ user_id: user.id, type: "access" }, c.env.WORKER_SECRET, 15 * 60);
 		const refresh_token = await signJWT({ user_id: user.id, type: "refresh" }, c.env.WORKER_SECRET, 7 * 24 * 60 * 60);
-		return c.json({ access_token, refresh_token });
+
+		return c.json({
+			access_token,
+			refresh_token,
+			user: {
+				id: user.id,
+				email: user.email,
+				company_name: user.company_name,
+				slug: user.slug,
+				is_fully_registered: user.is_fully_registered === 1,
+			},
+		});
 	}
 }
