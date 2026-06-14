@@ -1,5 +1,6 @@
 import { ApiException, fromHono } from "chanfana";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { ContentfulStatusCode } from "hono/utils/http-status";
 import type { Variables } from "./types";
 import { requireAuth } from "./auth/middleware";
@@ -19,7 +20,24 @@ import { AdminStats } from "./endpoints/api/admin/stats";
 import { RouterGet } from "./endpoints/router/routerGet";
 import { cleanup } from "./cron/cleanup";
 
+const ALLOWED_ORIGINS = [
+	"http://localhost:5173",
+	"https://misitio.google.com",
+];
+
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
+
+app.use(
+	"*",
+	cors({
+		origin: (origin) => (ALLOWED_ORIGINS.includes(origin) ? origin : null),
+		allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+		allowHeaders: ["Content-Type", "Authorization"],
+		exposeHeaders: [],
+		maxAge: 86400,
+		credentials: false,
+	}),
+);
 
 app.onError((err, c) => {
 	if (err instanceof ApiException) {
