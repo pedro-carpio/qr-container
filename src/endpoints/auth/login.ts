@@ -23,6 +23,7 @@ export class Login extends OpenAPIRoute {
 					z.object({
 						access_token: z.string(),
 						refresh_token: z.string(),
+						fallback_qr_string: z.string().nullable(),
 						user: z.object({
 							id: z.string(),
 							email: z.string(),
@@ -58,12 +59,18 @@ export class Login extends OpenAPIRoute {
 			return c.json({ success: false, errors: [{ code: 401, message: "Invalid credentials" }] }, 401);
 		}
 
-		const access_token = await signJWT({ user_id: user.id, type: "access" }, c.env.WORKER_SECRET, 15 * 60);
-		const refresh_token = await signJWT({ user_id: user.id, type: "refresh" }, c.env.WORKER_SECRET, 7 * 24 * 60 * 60);
+		const [access_token, refresh_token, fallbackQr] = await Promise.all([
+			signJWT({ user_id: user.id, type: "access" }, c.env.WORKER_SECRET, 15 * 60),
+			signJWT({ user_id: user.id, type: "refresh" }, c.env.WORKER_SECRET, 7 * 24 * 60 * 60),
+			c.env.DB.prepare("SELECT qr_string FROM qrs WHERE user_id = ? AND is_fallback = 1 LIMIT 1")
+				.bind(user.id)
+				.first<{ qr_string: string }>(),
+		]);
 
 		return c.json({
 			access_token,
 			refresh_token,
+			fallback_qr_string: fallbackQr?.qr_string ?? null,
 			user: {
 				id: user.id,
 				email: user.email,
