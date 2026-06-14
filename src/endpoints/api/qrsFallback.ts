@@ -27,6 +27,24 @@ export class QrsFallbackCreate extends OpenAPIRoute {
 		const data = await this.getValidatedData<typeof this.schema>();
 		const { qr_string, expiration_date, bank, card_color } = data.body;
 		const user_id = c.get("user_id");
+		const isPro = c.get("benefits") === "pro";
+
+		if (c.get("benefits") === "free") {
+			const counts = await c.env.DB.prepare(
+				`SELECT
+					COUNT(*) as total,
+					SUM(CASE WHEN is_fallback = 1 THEN 1 ELSE 0 END) as is_existing
+				FROM qrs WHERE user_id = ?`,
+			)
+				.bind(user_id)
+				.first<{ total: number; is_existing: number }>();
+			if (counts && counts.is_existing === 0 && counts.total >= 5) {
+				return c.json(
+					{ success: false, errors: [{ code: 403, message: "Free plan is limited to 5 QRs" }] },
+					403,
+				);
+			}
+		}
 
 		const minDate = new Date();
 		minDate.setMonth(minDate.getMonth() + 11);
@@ -43,7 +61,7 @@ export class QrsFallbackCreate extends OpenAPIRoute {
        ON CONFLICT (user_id) WHERE is_fallback = 1
        DO UPDATE SET qr_string = excluded.qr_string, expiration_date = excluded.expiration_date, bank = excluded.bank, card_color = excluded.card_color`,
 		)
-			.bind(crypto.randomUUID(), user_id, qr_string, expiration_date, bank ?? null, card_color ?? null, new Date().toISOString())
+			.bind(crypto.randomUUID(), user_id, qr_string, expiration_date, bank ?? null, isPro ? (card_color ?? null) : null, new Date().toISOString())
 			.run();
 
 		return c.json({ success: true });

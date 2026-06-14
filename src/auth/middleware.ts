@@ -10,13 +10,14 @@ export const requireAuth = createMiddleware<{ Bindings: Env; Variables: Variable
 	try {
 		const payload = await verifyJWT(auth.slice(7), c.env.WORKER_SECRET);
 		if (payload.type === "refresh") throw new Error("Refresh token cannot be used for API access");
-		const user = await c.env.DB.prepare("SELECT company_name, is_fully_registered FROM users WHERE id = ?")
+		const user = await c.env.DB.prepare("SELECT company_name, is_fully_registered, benefits FROM users WHERE id = ?")
 			.bind(payload.user_id)
-			.first<{ company_name: string | null; is_fully_registered: number }>();
+			.first<{ company_name: string | null; is_fully_registered: number; benefits: string }>();
 		if (!user) throw new Error("User not found");
 		c.set("user_id", payload.user_id as string);
 		c.set("company_name", user.company_name);
 		c.set("is_fully_registered", user.is_fully_registered);
+		c.set("benefits", (user.benefits ?? "free") as "free" | "simple" | "pro");
 	} catch {
 		return c.json({ success: false, errors: [{ code: 401, message: "Unauthorized" }] }, 401);
 	}

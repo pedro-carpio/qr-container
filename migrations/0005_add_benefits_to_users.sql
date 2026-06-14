@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN benefits TEXT NOT NULL DEFAULT 'free';

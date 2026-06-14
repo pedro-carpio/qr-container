@@ -19,6 +19,12 @@
 			"id": "f4f3cad3d9564da59629cbb1a8617363"
 		}
 	],
+	"r2_buckets": [
+		{
+			"binding": "LOGOS",
+			"bucket_name": "qr-container-logos"
+		}
+	],
 	"triggers": {
 		"crons": ["0 0 * * 1"]
 	}

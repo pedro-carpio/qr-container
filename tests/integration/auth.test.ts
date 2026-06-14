@@ -36,9 +36,10 @@ describe("POST /auth/login", () => {
 	it("returns a JWT for valid credentials", async () => {
 		await post("/auth/signup", { email: "login1@test.com", password: "password123" });
 		const res = await post("/auth/login", { email: "login1@test.com", password: "password123" });
-		const body = await res.json<{ token: string }>();
+		const body = await res.json<{ access_token: string; refresh_token: string }>();
 		expect(res.status).toBe(200);
-		expect(typeof body.token).toBe("string");
+		expect(typeof body.access_token).toBe("string");
+		expect(typeof body.refresh_token).toBe("string");
 	});
 
 	it("returns 401 for wrong password", async () => {
