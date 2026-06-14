@@ -17,7 +17,7 @@ export class QrsExpiring extends OpenAPIRoute {
 		const in30Days = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
 		const rows = await c.env.DB.prepare(
-			`SELECT id, amount, qr_string, expiration_date, bank, is_fallback
+			`SELECT id, amount, qr_string, expiration_date, bank, card_color, is_fallback
 			 FROM qrs
 			 WHERE user_id = ?
 			   AND expiration_date > ?

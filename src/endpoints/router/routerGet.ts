@@ -19,7 +19,7 @@ export class RouterGet extends OpenAPIRoute {
 		responses: {
 			"200": {
 				description: "QR string",
-				...contentJson(z.object({ qr_string: z.string(), expiration_date: z.string() })),
+				...contentJson(z.object({ qr_string: z.string(), expiration_date: z.string(), card_color: z.string().nullable() })),
 			},
 			"404": { description: "Not found" },
 			"429": { description: "Rate limit exceeded" },
@@ -54,27 +54,27 @@ export class RouterGet extends OpenAPIRoute {
 
 		// Exact QR match
 		const qr = await c.env.DB.prepare(
-			"SELECT qr_string, expiration_date FROM qrs WHERE user_id = ? AND amount = ? AND is_fallback = 0",
+			"SELECT qr_string, expiration_date, card_color FROM qrs WHERE user_id = ? AND amount = ? AND is_fallback = 0",
 		)
 			.bind(user.id, amount)
-			.first<{ qr_string: string; expiration_date: string }>();
+			.first<{ qr_string: string; expiration_date: string; card_color: string | null }>();
 
 		if (qr && qr.expiration_date > now) {
-			return c.json({ qr_string: qr.qr_string, expiration_date: qr.expiration_date });
+			return c.json({ qr_string: qr.qr_string, expiration_date: qr.expiration_date, card_color: qr.card_color });
 		}
 
 		// Fallback
 		const fallback = await c.env.DB.prepare(
-			"SELECT qr_string, expiration_date FROM qrs WHERE user_id = ? AND is_fallback = 1 AND expiration_date > ?",
+			"SELECT qr_string, expiration_date, card_color FROM qrs WHERE user_id = ? AND is_fallback = 1 AND expiration_date > ?",
 		)
 			.bind(user.id, now)
-			.first<{ qr_string: string; expiration_date: string }>();
+			.first<{ qr_string: string; expiration_date: string; card_color: string | null }>();
 
 		if (!fallback) {
 			return c.json({ success: false, errors: [{ code: 404, message: "Not found" }] }, 404);
 		}
 
 		c.executionCtx.waitUntil(notifyOwner(user.email, slug, amount));
-		return c.json({ qr_string: fallback.qr_string, expiration_date: fallback.expiration_date });
+		return c.json({ qr_string: fallback.qr_string, expiration_date: fallback.expiration_date, card_color: fallback.card_color });
 	}
 }

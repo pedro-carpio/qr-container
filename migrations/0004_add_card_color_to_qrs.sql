@@ -1,0 +1,1 @@
+ALTER TABLE qrs ADD COLUMN card_color TEXT;

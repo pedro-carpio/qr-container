@@ -47,7 +47,7 @@ export class AdminUserQrs extends OpenAPIRoute {
 		const [countResult, rowsResult] = await c.env.DB.batch([
 			c.env.DB.prepare("SELECT COUNT(*) as total FROM qrs WHERE user_id = ?").bind(user_id),
 			c.env.DB.prepare(
-				"SELECT id, amount, qr_string, expiration_date, bank, is_fallback, created_at FROM qrs WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?",
+				"SELECT id, amount, qr_string, expiration_date, bank, card_color, is_fallback, created_at FROM qrs WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?",
 			).bind(user_id, limit, offset),
 		]);
 
