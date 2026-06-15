@@ -69,6 +69,16 @@ export class Login extends OpenAPIRoute {
 				.first<{ qr_string: string }>(),
 		]);
 
+		const shouldBeFullyRegistered = !!(user.company_name && user.slug && fallbackQr);
+
+		if (shouldBeFullyRegistered && user.is_fully_registered !== 1) {
+			await c.env.DB.prepare("UPDATE users SET is_fully_registered = 1 WHERE id = ?")
+				.bind(user.id)
+				.run();
+		}
+
+		const isFullyRegistered = shouldBeFullyRegistered || user.is_fully_registered === 1;
+
 		return c.json({
 			access_token,
 			refresh_token,
@@ -81,7 +91,7 @@ export class Login extends OpenAPIRoute {
 				email: user.email,
 				company_name: user.company_name,
 				slug: user.slug,
-				is_fully_registered: user.is_fully_registered === 1,
+				is_fully_registered: isFullyRegistered,
 			},
 		});
 	}
