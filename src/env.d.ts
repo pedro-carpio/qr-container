@@ -3,4 +3,5 @@ interface Env {
 	KV: KVNamespace;
 	WORKER_SECRET: string;
 	LOGOS: R2Bucket;
+	LOGOS_BASE_URL: string;
 }

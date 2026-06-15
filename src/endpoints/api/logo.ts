@@ -147,9 +147,10 @@ export class LogoUpload extends OpenAPIRoute {
 		const ext = file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : "webp";
 		const key = `logos/${user_id}.${ext}`;
 
-		await c.env.LOGOS.put(key, buffer, {
-			httpMetadata: { contentType: file.type },
-		});
+		await Promise.all([
+			c.env.LOGOS.put(key, buffer, { httpMetadata: { contentType: file.type } }),
+			c.env.DB.prepare("UPDATE users SET logo_ext = ? WHERE id = ?").bind(ext, user_id).run(),
+		]);
 
 		return c.json({ success: true, key });
 	}

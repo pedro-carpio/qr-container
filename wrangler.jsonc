@@ -25,6 +25,9 @@
 			"bucket_name": "qr-container-logos"
 		}
 	],
+	"vars": {
+		"LOGOS_BASE_URL": "https://84204ec298dd667ad20b0ef7c9bfab3f.r2.cloudflarestorage.com/qr-container-logos"
+	},
 	"triggers": {
 		"crons": ["0 0 * * 1"]
 	}

@@ -24,6 +24,7 @@ export class Login extends OpenAPIRoute {
 						access_token: z.string(),
 						refresh_token: z.string(),
 						fallback_qr_string: z.string().nullable(),
+						logo_url: z.string().nullable(),
 						user: z.object({
 							id: z.string(),
 							email: z.string(),
@@ -43,7 +44,7 @@ export class Login extends OpenAPIRoute {
 		const { email, password } = data.body;
 
 		const user = await c.env.DB.prepare(
-			"SELECT id, email, password_hash, company_name, slug, is_fully_registered FROM users WHERE email = ?",
+			"SELECT id, email, password_hash, company_name, slug, is_fully_registered, logo_ext FROM users WHERE email = ?",
 		)
 			.bind(email)
 			.first<{
@@ -53,6 +54,7 @@ export class Login extends OpenAPIRoute {
 				company_name: string | null;
 				slug: string | null;
 				is_fully_registered: number;
+				logo_ext: string | null;
 			}>();
 
 		if (!user || !(await verifyPassword(password, user.password_hash))) {
@@ -71,6 +73,9 @@ export class Login extends OpenAPIRoute {
 			access_token,
 			refresh_token,
 			fallback_qr_string: fallbackQr?.qr_string ?? null,
+			logo_url: user.logo_ext
+				? `${c.env.LOGOS_BASE_URL}/logos/${user.id}.${user.logo_ext}`
+				: null,
 			user: {
 				id: user.id,
 				email: user.email,
