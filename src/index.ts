@@ -24,7 +24,7 @@ import { QrsRender } from "./endpoints/api/qrsRender";
 import { cleanup } from "./cron/cleanup";
 
 const ALLOWED_ORIGINS = [
-	"https://qr-container-frontend.vercel.app/",
+	"https://qr-container-frontend.vercel.app",
 	"https://misqrs.porkusillo.site"
 ];
 
