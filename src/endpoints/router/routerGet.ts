@@ -19,7 +19,7 @@ export class RouterGet extends OpenAPIRoute {
 		responses: {
 			"200": {
 				description: "QR string",
-				...contentJson(z.object({ qr_string: z.string(), expiration_date: z.string(), card_color: z.string().nullable() })),
+				...contentJson(z.object({ qr_string: z.string(), expiration_date: z.string(), card_color: z.string().nullable(), logo_url: z.string().nullable() })),
 			},
 			"404": { description: "Not found" },
 			"429": { description: "Rate limit exceeded" },
@@ -42,13 +42,17 @@ export class RouterGet extends OpenAPIRoute {
 
 		// Resolve user by slug
 		const user = await c.env.DB.prepare(
-			"SELECT id, email FROM users WHERE slug = ?",
+			"SELECT id, email, logo_ext FROM users WHERE slug = ?",
 		)
 			.bind(slug)
-			.first<{ id: string; email: string }>();
+			.first<{ id: string; email: string; logo_ext: string | null }>();
 		if (!user) {
 			return c.json({ success: false, errors: [{ code: 404, message: "Not found" }] }, 404);
 		}
+
+		const logo_url = user.logo_ext
+			? `${c.env.LOGOS_BASE_URL}/logos/${user.id}.${user.logo_ext}`
+			: null;
 
 		const now = new Date().toISOString();
 
@@ -60,7 +64,7 @@ export class RouterGet extends OpenAPIRoute {
 			.first<{ qr_string: string; expiration_date: string; card_color: string | null }>();
 
 		if (qr && qr.expiration_date > now) {
-			return c.json({ qr_string: qr.qr_string, expiration_date: qr.expiration_date, card_color: qr.card_color });
+			return c.json({ qr_string: qr.qr_string, expiration_date: qr.expiration_date, card_color: qr.card_color, logo_url });
 		}
 
 		// Fallback
@@ -75,6 +79,6 @@ export class RouterGet extends OpenAPIRoute {
 		}
 
 		c.executionCtx.waitUntil(notifyOwner(user.email, slug, amount));
-		return c.json({ qr_string: fallback.qr_string, expiration_date: fallback.expiration_date, card_color: fallback.card_color });
+		return c.json({ qr_string: fallback.qr_string, expiration_date: fallback.expiration_date, card_color: fallback.card_color, logo_url });
 	}
 }
