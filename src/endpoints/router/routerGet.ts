@@ -60,7 +60,15 @@ export class RouterGet extends OpenAPIRoute {
 			.first<{ qr_string: string; expiration_date: string; card_color: string | null }>();
 
 		if (!qr || qr.expiration_date <= now) {
-			return c.json({ success: false, errors: [{ code: 404, message: "QR not found for the given amount" }] }, 404);
+			const fallback_qr = await c.env.DB.prepare(
+			"SELECT qr_string, expiration_date, card_color FROM qrs WHERE user_id = ? AND is_fallback = 1",
+		)
+			.bind(user.id)
+			.first<{ qr_string: string; expiration_date: string; card_color: string | null }>();
+			if (!fallback_qr) {
+				return c.json({ success: false, errors: [{ code: 404, message: "Not found" }] }, 404);
+			}
+			return c.json({ qr_string: fallback_qr.qr_string, expiration_date: fallback_qr.expiration_date, card_color: fallback_qr.card_color, logo_url });
 		}
 
 		return c.json({ qr_string: qr.qr_string, expiration_date: qr.expiration_date, card_color: qr.card_color, logo_url });
