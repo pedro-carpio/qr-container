@@ -10,7 +10,7 @@ export class RouterGet extends OpenAPIRoute {
 		request: {
 			params: z.object({
 				slug: z.string(),
-				amount: z.coerce.number().positive(),
+				amount: z.coerce.number(),
 			}),
 		},
 		responses: {
