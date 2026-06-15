@@ -26,7 +26,7 @@
 		}
 	],
 	"vars": {
-		"LOGOS_BASE_URL": "https://84204ec298dd667ad20b0ef7c9bfab3f.r2.cloudflarestorage.com/qr-container-logos"
+		"LOGOS_BASE_URL": "https://pub-e8b23ca60a9041249e50e50e3ebd4fca.r2.dev"
 	},
 	"triggers": {
 		"crons": ["0 0 * * 1"]
