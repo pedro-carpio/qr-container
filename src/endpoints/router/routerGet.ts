@@ -2,9 +2,6 @@ import { contentJson, OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import type { AppContext } from "../../types";
 
-async function notifyOwner(email: string, slug: string, amount: number): Promise<void> {
-	console.log(`[notify] fallback used: slug=${slug} amount=${amount} owner=${email}`);
-}
 
 export class RouterGet extends OpenAPIRoute {
 	schema = {
@@ -39,7 +36,6 @@ export class RouterGet extends OpenAPIRoute {
 
 		const data = await this.getValidatedData<typeof this.schema>();
 		const { slug, amount } = data.params;
-
 		// Resolve user by slug
 		const user = await c.env.DB.prepare(
 			"SELECT id, email, logo_ext FROM users WHERE slug = ?",
@@ -63,22 +59,10 @@ export class RouterGet extends OpenAPIRoute {
 			.bind(user.id, amount)
 			.first<{ qr_string: string; expiration_date: string; card_color: string | null }>();
 
-		if (qr && qr.expiration_date > now) {
-			return c.json({ qr_string: qr.qr_string, expiration_date: qr.expiration_date, card_color: qr.card_color, logo_url });
+		if (!qr || qr.expiration_date <= now) {
+			return c.json({ success: false, errors: [{ code: 404, message: "QR not found for the given amount" }] }, 404);
 		}
 
-		// Fallback
-		const fallback = await c.env.DB.prepare(
-			"SELECT qr_string, expiration_date, card_color FROM qrs WHERE user_id = ? AND is_fallback = 1 AND expiration_date > ?",
-		)
-			.bind(user.id, now)
-			.first<{ qr_string: string; expiration_date: string; card_color: string | null }>();
-
-		if (!fallback) {
-			return c.json({ success: false, errors: [{ code: 404, message: "Not found" }] }, 404);
-		}
-
-		c.executionCtx.waitUntil(notifyOwner(user.email, slug, amount));
-		return c.json({ qr_string: fallback.qr_string, expiration_date: fallback.expiration_date, card_color: fallback.card_color, logo_url });
+		return c.json({ qr_string: qr.qr_string, expiration_date: qr.expiration_date, card_color: qr.card_color, logo_url });
 	}
 }
